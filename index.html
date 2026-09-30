@@ -64,7 +64,7 @@ nav ul a:hover{background:var(--navy2);color:#fff}
 h3.sub{font-size:1.25rem;margin-bottom:6px}
 .panel{background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:26px}
 
-#skills{background:var(--white);border-block:1px solid var(--rule)}
+#skills,#projects{background:var(--white);border-block:1px solid var(--rule)}
 .skills{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:20px}
 .skill{background:var(--paper);border:1px solid var(--rule);border-left:4px solid var(--green);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
 .skill img{width:100%;height:auto;object-fit:contain;display:block}
@@ -172,6 +172,7 @@ footer{background:#0A1729;color:#93A0B4;text-align:center;padding:22px;font-size
       <li><a href="#about">About</a></li>
       <li><a href="#skills">Skills</a></li>
       <li><a href="#services">Services</a></li>
+      <li id="navProjects"><a href="#projects">Projects</a></li>
       <li><a href="#experience">Experience</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
@@ -227,6 +228,14 @@ footer{background:#0A1729;color:#93A0B4;text-align:center;padding:22px;font-size
   </div>
 </section>
 
+<section id="projects" style="display:none">
+  <div class="wrap">
+    <h2>Projects</h2>
+    <p class="lede">A few examples of my finished work.</p>
+    <div class="skills" id="projList"></div>
+  </div>
+</section>
+
 <section id="experience">
   <div class="wrap">
     <h2>Experiences</h2>
@@ -263,6 +272,7 @@ footer{background:#0A1729;color:#93A0B4;text-align:center;padding:22px;font-size
   {"title":"Communication and interpersonal skills","desc":"","img":"","link":""},
   {"title":"Proactive problem solving and troubleshooting","desc":"","img":"","link":""}
  ],
+ "projects":[],
  "services":[
   {"name":"Bookkeeping","img":"","items":["Recording day-to-day financial transactions","Bank reconciliation and expense tracking","Basic accounting (journal entries, balance sheet, income statement, profit & loss and cash flow)","Invoice creation and management","Expert in QuickBooks, Excel, and other bookkeeping tools","Knowledge of proper bookkeeping procedures and confidentiality practices"]},
   {"name":"Administrative Support","img":"","items":["Email and calendar management","Data entry and document organization","Online file storage (Google Drive, Dropbox, etc.)","Appointment setting and follow-ups","Creating reports, summaries, and presentations","Familiar with tools like Google Workspace, Microsoft Office, Trello, and Notion"]},
@@ -343,6 +353,7 @@ function saveRemote(){
       snapshot.photo=await put(snapshot.photo);
       for(const s of snapshot.skills)s.img=await put(s.img);
       for(const s of snapshot.services)s.img=await put(s.img);
+      for(const s of (snapshot.projects||[]))s.img=await put(s.img);
       await fb.setDoc(fb.doc(fb.db,'portfolio','main'),snapshot);
       setStatus('All changes saved.');
     }catch(e){
@@ -366,7 +377,8 @@ async function loadRemote(){
   await Promise.all([
     (async()=>{r.photo=await get(r.photo)})(),
     ...(r.skills||[]).map(async s=>{s.img=await get(s.img)}),
-    ...(r.services||[]).map(async s=>{s.img=await get(s.img)})
+    ...(r.services||[]).map(async s=>{s.img=await get(s.img)}),
+    ...(r.projects||[]).map(async s=>{s.img=await get(s.img)})
   ]);
   data=Object.assign({},DEFAULTS,r);
   render();
@@ -406,6 +418,13 @@ function render(){
     const i=okImg(s.img);
     return `<article class="svc">${i?`<img src="${i}" alt="${esc(s.name)}">`:''}<h3>${esc(s.name)}</h3><ul>${s.items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>`;
   }).join('');
+  const pj=data.projects||[];
+  $('#projList').innerHTML=pj.map(s=>{
+    const l=fixUrl(s.link),i=okImg(s.img);
+    return `<article class="skill">${i?`<img src="${i}" alt="${esc(s.title)}">`:''}<div class="b"><h3>${esc(s.title)}</h3>${s.desc?`<p>${esc(s.desc)}</p>`:''}${l?`<a href="${esc(l)}" target="_blank" rel="noopener">View project &rarr;</a>`:''}</div></article>`;
+  }).join('');
+  $('#projects').style.display=pj.length?'':'none';
+  $('#navProjects').style.display=pj.length?'':'none';
   $('#expList').innerHTML=data.experiences.map(e=>`<article class="job"><div class="co">${esc(e.company)}</div><div><h3>${esc(e.role)}</h3>${paras(e.text).map(p=>`<p>${esc(p)}</p>`).join('')}</div></article>`).join('');
   const tel=(data.phone||'').replace(/[^\d+]/g,'');
   $('#contactLinks').innerHTML=`<a href="mailto:${esc(data.email)}"><small>Email</small>${esc(data.email)}</a><a href="tel:${esc(tel)}"><small>Phone</small>${esc(data.phone)}</a>`;
@@ -452,6 +471,9 @@ function panel(){
   if(tab==='services') return `<p class="note">Add a picture to any service. Bullet points go one per line.</p>`+
     data.services.map((s,i)=>`<div class="item">${fld('Service name',`services.${i}.name`)}${upl('Upload picture',`services.${i}.img`)}${fld('Bullet points (one per line)',`services.${i}.items`,'lines',true)}<button type="button" class="b del" data-act="del" data-list="services" data-i="${i}">Delete service</button></div>`).join('')+
     `<button type="button" class="b go" data-act="add-service">Add service</button>`;
+  if(tab==='projects') return `<p class="note">Add your finished work with a picture and a link (website, Google Drive, Canva, etc.).</p>`+
+    (data.projects||[]).map((s,i)=>`<div class="item">${fld('Project name',`projects.${i}.title`)}${fld('Short description',`projects.${i}.desc`)}${upl('Upload picture',`projects.${i}.img`)}${fld('Project link (https://...)',`projects.${i}.link`)}<button type="button" class="b del" data-act="del" data-list="projects" data-i="${i}">Delete project</button></div>`).join('')+
+    `<button type="button" class="b go" data-act="add-project">Add project</button>`;
   if(tab==='skills') return `<p class="note">Each skill can have a picture and a link to a finished project.</p>`+
     data.skills.map((s,i)=>`<div class="item">${fld('Skill',`skills.${i}.title`)}${fld('Short description',`skills.${i}.desc`)}${upl('Upload picture',`skills.${i}.img`)}${fld('Finished project link',`skills.${i}.link`)}<button type="button" class="b del" data-act="del" data-list="skills" data-i="${i}">Delete skill</button></div>`).join('')+
     `<button type="button" class="b go" data-act="add-skill">Add skill</button>`;
@@ -469,7 +491,7 @@ function panel(){
 }
 
 function build(){
-  const T=[['profile','Profile'],['services','Services'],['skills','Skills'],['exp','Experience'],['account','Account']];
+  const T=[['profile','Profile'],['services','Services'],['projects','Projects'],['skills','Skills'],['exp','Experience'],['account','Account']];
   let m=$('#adminModal');
   if(!m){m=document.createElement('div');m.id='adminModal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label','Edit portfolio');document.body.appendChild(m);bind(m);}
   const top=m.scrollTop;
@@ -570,6 +592,7 @@ function bind(m){
     else if(a==='clear'){setP(b.dataset.path,'');change();}
     else if(a==='del'){if(confirm('Delete this item?')){data[b.dataset.list].splice(+b.dataset.i,1);change();}}
     else if(a==='add-service'){data.services.push({name:'New service',img:'',items:['First point']});change();}
+    else if(a==='add-project'){(data.projects=data.projects||[]).push({title:'New project',desc:'',img:'',link:''});change();}
     else if(a==='add-skill'){data.skills.push({title:'New skill',desc:'',img:'',link:''});change();}
     else if(a==='add-exp'){data.experiences.push({role:'Job title',company:'Company',text:'What you did there.'});change();}
     else if(a==='export')exportSite();

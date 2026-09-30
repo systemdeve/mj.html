@@ -228,7 +228,7 @@ footer{background:#0A1729;color:#93A0B4;text-align:center;padding:22px;font-size
   </div>
 </section>
 
-<section id="projects" style="display:none">
+<section id="projects">
   <div class="wrap">
     <h2>Projects</h2>
     <p class="lede">A few examples of my finished work.</p>
@@ -419,12 +419,10 @@ function render(){
     return `<article class="svc">${i?`<img src="${i}" alt="${esc(s.name)}">`:''}<h3>${esc(s.name)}</h3><ul>${s.items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>`;
   }).join('');
   const pj=data.projects||[];
-  $('#projList').innerHTML=pj.map(s=>{
+  $('#projList').innerHTML=!pj.length?'<p class="lede">Projects coming soon.</p>':pj.map(s=>{
     const l=fixUrl(s.link),i=okImg(s.img);
     return `<article class="skill">${i?`<img src="${i}" alt="${esc(s.title)}">`:''}<div class="b"><h3>${esc(s.title)}</h3>${s.desc?`<p>${esc(s.desc)}</p>`:''}${l?`<a href="${esc(l)}" target="_blank" rel="noopener">View project &rarr;</a>`:''}</div></article>`;
   }).join('');
-  $('#projects').style.display=pj.length?'':'none';
-  $('#navProjects').style.display=pj.length?'':'none';
   $('#expList').innerHTML=data.experiences.map(e=>`<article class="job"><div class="co">${esc(e.company)}</div><div><h3>${esc(e.role)}</h3>${paras(e.text).map(p=>`<p>${esc(p)}</p>`).join('')}</div></article>`).join('');
   const tel=(data.phone||'').replace(/[^\d+]/g,'');
   $('#contactLinks').innerHTML=`<a href="mailto:${esc(data.email)}"><small>Email</small>${esc(data.email)}</a><a href="tel:${esc(tel)}"><small>Phone</small>${esc(data.phone)}</a>`;

@@ -50,8 +50,9 @@ nav ul a:hover{background:var(--navy2);color:#fff}
 .btn.primary:hover{background:#186349;border-color:#186349}
 .btn.ghost:hover{background:#fff;color:var(--navy)}
 .visual{position:relative}
-#photoBox{aspect-ratio:4/5;max-width:340px;margin-left:auto;border-radius:10px;overflow:hidden;background:var(--navy2);border:2px solid var(--gold);display:grid;place-items:center}
-#photoBox img{width:100%;height:100%;object-fit:cover;display:block}
+#photoBox{max-width:340px;margin-left:auto;border-radius:10px;overflow:hidden;background:var(--navy2);border:2px solid var(--gold);display:block}
+#photoBox img{width:100%;height:auto;object-fit:contain;display:block}
+#photoBox:not(:has(img)){aspect-ratio:4/5;display:grid;place-items:center}
 .initials{font-family:var(--serif);font-size:5.5rem;font-weight:700;color:var(--gold)}
 
 #about .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px}
@@ -66,7 +67,7 @@ h3.sub{font-size:1.25rem;margin-bottom:6px}
 #skills{background:var(--white);border-block:1px solid var(--rule)}
 .skills{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:20px}
 .skill{background:var(--paper);border:1px solid var(--rule);border-left:4px solid var(--green);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
-.skill img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+.skill img{width:100%;height:auto;object-fit:contain;display:block}
 .skill .b{padding:16px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
 .skill h3{font-size:1.1rem}
 .skill p{color:var(--muted);font-size:.95rem}
@@ -74,7 +75,7 @@ h3.sub{font-size:1.25rem;margin-bottom:6px}
 
 .services{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,310px),1fr));gap:24px}
 .svc{background:var(--white);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
-.svc img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.svc img{width:100%;height:auto;object-fit:contain;display:block}
 .svc h3{background:var(--navy);color:#fff;font-size:1.15rem;padding:14px 22px}
 .svc ul{padding:18px 22px 22px 40px;font-size:.96rem}
 .svc li{margin-bottom:7px}
@@ -114,7 +115,7 @@ footer{background:#0A1729;color:#93A0B4;text-align:center;padding:22px;font-size
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .up{display:flex;gap:14px;align-items:center;margin-bottom:12px}
 .thumb{width:84px;height:64px;border-radius:6px;background:#EAE6DA;display:grid;place-items:center;font-size:.72rem;color:var(--muted);overflow:hidden;flex:none;text-align:center}
-.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb img{width:100%;height:100%;object-fit:contain}
 .mbody .fbtn,.mbody button.b{display:inline-block;background:var(--navy);color:#fff;border:0;border-radius:6px;padding:8px 14px;font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;margin:0 8px 0 0}
 .mbody button.b.alt{background:#fff;color:var(--navy);border:1px solid var(--navy)}
 .mbody button.b.del{background:#fff;color:#A32626;border:1px solid #A32626}
@@ -492,7 +493,7 @@ function shrink(file,max){
       const k=Math.min(1,max/Math.max(im.width,im.height));
       const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
       const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
-      res(c.toDataURL('image/jpeg',.78));};im.src=r.result;};
+      res(c.toDataURL('image/jpeg',.88));};im.src=r.result;};
     r.readAsDataURL(file);
   });
 }
@@ -554,7 +555,7 @@ function bind(m){
   m.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='lgPass')doLogin();});
   m.addEventListener('change',async e=>{
     const el=e.target;if(!el.dataset.file||!el.files[0])return;
-    try{setP(el.dataset.file,await shrink(el.files[0],el.dataset.file==='photo'?800:1000));render();scheduleSave();build();}
+    try{setP(el.dataset.file,await shrink(el.files[0],el.dataset.file==='photo'?1400:1400));render();scheduleSave();build();}
     catch(err){setStatus('That file could not be read as a picture. Try a JPG or PNG.',true);}
   });
   m.addEventListener('click',e=>{
